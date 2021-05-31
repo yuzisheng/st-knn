@@ -66,9 +66,15 @@ object Main {
          |""".stripMargin)
   }
 
-  def didiToJustOp(inputHdfsPath: String, outputHdfsPath: String): Unit = {
+  def didiToOldJustOp(inputHdfsPath: String, outputHdfsPath: String): Unit = {
     val rawData = spark.textFile(inputHdfsPath)
-    val cleanData = didiToJust(rawData)
+    val cleanData = didiToOldJust(rawData)
+    cleanData.saveAsTextFile(outputHdfsPath)
+  }
+
+  def didiToNewJustOp(inputHdfsPath: String, outputHdfsPath: String): Unit = {
+    val rawData = spark.textFile(inputHdfsPath)
+    val cleanData = didiToNewJust(rawData)
     cleanData.saveAsTextFile(outputHdfsPath)
   }
 
@@ -100,10 +106,15 @@ object Main {
         val (inputHdfsPath, mbrParma) = (args(1), args(2))
         extractOp(inputHdfsPath, mbrParma)
 
-      case "didi-to-just" =>
+      case "didi-to-old-just" =>
         assert(args.length == 3)
         val (inputHdfsPath, outputHdfsPath) = (args(1), args(2))
-        didiToJustOp(inputHdfsPath, outputHdfsPath)
+        didiToOldJustOp(inputHdfsPath, outputHdfsPath)
+
+      case "didi-to-new-just" =>
+        assert(args.length == 3)
+        val (inputHdfsPath, outputHdfsPath) = (args(1), args(2))
+        didiToNewJustOp(inputHdfsPath, outputHdfsPath)
 
       case _ => throw new IllegalArgumentException(s"[$op] is not supported")
     }

@@ -82,7 +82,7 @@ object DataProcessApp {
   def extractByMBR(data: RDD[String], mbr: Envelope): RDD[String] =
     data.filter(p => mbr.contains(WKTUtils.read(p).getEnvelopeInternal))
 
-  def didiToJust(data: RDD[String]): RDD[String] =
+  def didiToOldJust(data: RDD[String]): RDD[String] =
     data.map(line => {
       val fm = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
       val List(oid, tid, traj) = line.split(",(?=([^\"]*\"[^\"]*\")*[^\"]*$)").toList
@@ -93,6 +93,19 @@ object DataProcessApp {
           gps.head.toDouble, gps(1).toDouble).mkString(",") + "]"
       }).mkString(",") + "]"
       oid + "\t" + tid + "\t" + stSeries
+    })
+
+  def didiToNewJust(data: RDD[String]): RDD[String] =
+    data.map(line => {
+      val fm = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
+      val List(oid, _, traj) = line.split(",(?=([^\"]*\"[^\"]*\")*[^\"]*$)").toList
+      val stSeries = "[" + traj.drop(2).dropRight(2).split(", ").map(t => {
+        val gps = t.split(" ")
+        // [timestamp,lng,lat]
+        "[" + Seq("\"" + fm.format(new Date(gps.last.toLong * 1000)) + "\"",
+          gps.head.toDouble, gps(1).toDouble).mkString(",") + "]"
+      }).mkString(",") + "]"
+      "[\"" + oid + "\"," + stSeries + "]"
     })
 
   def main(args: Array[String]): Unit = {
