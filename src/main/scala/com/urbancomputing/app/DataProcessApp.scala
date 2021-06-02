@@ -108,6 +108,19 @@ object DataProcessApp {
       "[\"" + oid + "\"," + stSeries + "]"
     })
 
+  def didiToNewJust2(data: RDD[String]): RDD[String] =
+    data.map(line => {
+      val fm = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
+      val List(_, _, traj) = line.split(",(?=([^\"]*\"[^\"]*\")*[^\"]*$)").toList
+      val stSeries = "[" + traj.drop(2).dropRight(2).split(", ").map(t => {
+        val gps = t.split(" ")
+        // [timestamp,lng,lat]
+        "[" + Seq("\"" + fm.format(new Date(gps.last.toLong * 1000)) + "\"",
+          gps.head.toDouble, gps(1).toDouble).mkString(",") + "]"
+      }).mkString(",") + "]"
+      "[\"" + "oid" + "\"," + stSeries + "]"
+    })
+
   def main(args: Array[String]): Unit = {
     val conf = new SparkConf()
       .setAppName("DataProcessApp")

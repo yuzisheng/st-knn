@@ -78,6 +78,12 @@ object Main {
     cleanData.saveAsTextFile(outputHdfsPath)
   }
 
+  def didiToNewJust2Op(inputHdfsPath: String, outputHdfsPath: String): Unit = {
+    val rawData = spark.textFile(inputHdfsPath)
+    val cleanData = didiToNewJust2(rawData)
+    cleanData.saveAsTextFile(outputHdfsPath)
+  }
+
   def main(args: Array[String]): Unit = {
     val op = args(0).toLowerCase
     op match {
@@ -115,6 +121,11 @@ object Main {
         assert(args.length == 3)
         val (inputHdfsPath, outputHdfsPath) = (args(1), args(2))
         didiToNewJustOp(inputHdfsPath, outputHdfsPath)
+
+      case "didi-to-new-just2" =>
+        assert(args.length == 3)
+        val (inputHdfsPath, outputHdfsPath) = (args(1), args(2))
+        didiToNewJust2Op(inputHdfsPath, outputHdfsPath)
 
       case _ => throw new IllegalArgumentException(s"[$op] is not supported")
     }
