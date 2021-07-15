@@ -95,9 +95,9 @@ object DataProcessApp {
       oid + "\t" + tid + "\t" + stSeries
     })
 
-  def didiToNewJust(data: RDD[String]): RDD[String] =
+  def didiToNewJust(data: RDD[String]): RDD[String] = {
+    val fm = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
     data.map(line => {
-      val fm = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
       val List(oid, _, traj) = line.split(",(?=([^\"]*\"[^\"]*\")*[^\"]*$)").toList
       val stSeries = "[" + traj.drop(2).dropRight(2).split(", ").map(t => {
         val gps = t.split(" ")
@@ -107,6 +107,7 @@ object DataProcessApp {
       }).mkString(",") + "]"
       "[\"" + oid + "\"," + stSeries + "]"
     })
+  }
 
   def didiToNewJust2(data: RDD[String]): RDD[String] =
     data.map(line => {
